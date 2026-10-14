@@ -1,0 +1,90 @@
+# sarana-go
+
+Client Go untuk API pembayaran Sarana (`/api/v2`). Tanpa dependency di luar standard library.
+
+```bash
+go get github.com/SaranaTechnology/sarana-go
+```
+
+## Pakai
+
+```go
+import sarana "github.com/SaranaTechnology/sarana-go"
+
+c := sarana.New(os.Getenv("SARANA_API_KEY"))
+// Untuk tes ke Xendit sandbox:
+// c := sarana.New(key, sarana.WithBaseURL(sarana.SandboxURL))
+
+inv, err := c.CreateInvoice(ctx, sarana.InvoiceRequest{
+	Amount:      150000,
+	ExternalID:  "ORDER-1001",
+	CallbackURL: "https://tokoku.id/sarana/callback",
+})
+if err != nil {
+	var e *sarana.Error
+	if errors.As(err, &e) {
+		log.Printf("HTTP %d: %s", e.Status, e.Message)
+	}
+	return err
+}
+fmt.Println(inv["invoice_url"])
+```
+
+Tiap method mengembalikan isi field `data` dari response API (`sarana.Object` = `map[string]any`). Method list (`ListTransactions`, `ListWithdrawals`, dan lainnya) mengembalikan `*sarana.List` berisi `Data` dan `Meta` untuk paginasi.
+
+`client_id` tidak perlu dikirim. API mengambilnya dari API key.
+
+## Sub-client
+
+```go
+outlet := c.ForSubRef("OUTLET-01")   // header X-Sub-Client
+// atau c.ForSubClient("sub_3f9a...") // header for-user-id
+
+outlet.CreateQRIS(ctx, sarana.QRISRequest{Amount: 25000})
+outlet.GetBalance(ctx)
+
+// Pindah saldo selalu dari akun induk:
+c.TransferSubClient(ctx, "OUTLET-01", sarana.TransferRequest{Arah: sarana.KeSub, Jumlah: 500000})
+```
+
+Kalau `TransferSubClient` mengembalikan `status: "unknown"` (HTTP 202), jangan diulang. Mengulang bisa memindahkan uang dua kali. Admin Sarana yang mencocokkan transfer itu.
+
+## Callback
+
+```go
+http.HandleFunc("/sarana/callback", func(w http.ResponseWriter, r *http.Request) {
+	cb, err := sarana.ParsePaymentCallback(r)
+	if err != nil {
+		http.Error(w, "bad request", 400)
+		return
+	}
+	w.WriteHeader(200) // balas cepat, proses di belakang
+
+	go func() {
+		// Callback tidak ditandatangani: cek ulang ke API sebelum menandai lunas.
+		tx, err := c.GetTransactionByExternalID(context.Background(), cb.ClientExternalID)
+		if err == nil && tx["status"] == "paid" {
+			// tandai order lunas (idempoten: callback yang sama bisa datang lagi)
+		}
+	}()
+})
+```
+
+Callback invoice dikirim saat status `PAID`, `SETTLED`, atau `EXPIRED`. Status pending tidak dikirim, jadi pakai `PaymentStatus` untuk polling. Transaksi milik sub-client membawa `cb.SubID` dan `cb.SubRef`.
+
+## Daftar method
+
+| Grup | Method |
+|---|---|
+| Payments | `PaymentMethods`, `CreateVA`, `CreateEWallet`, `CreateQRIS`, `CreateInvoice`, `PaymentStatus` |
+| Fees | `FeeRates`, `SettlementSchedule`, `CalculateFee`, `CalculateFeeBulk`, `CalculateVAT`, `CalculateWithdrawalFee`, `CalculateAmountToPay` |
+| Transactions | `ListTransactions`, `GetTransaction`, `GetTransactionByExternalID` |
+| Withdrawals | `ListWithdrawals`, `CreateWithdrawal`, `GetWithdrawal`, `GetWithdrawalByExternalID`, `CancelWithdrawal` |
+| Settlements | `CreateSettlement` |
+| Bank channels | `ActiveBankChannels`, `GetBankChannel` |
+| Account | `GetAccount`, `UpdateAccount`, `GetBalance`, `ListApps` |
+| Sub-clients | `BalanceSummary`, `ListSubClients`, `GetSubClient`, `TransferSubClient`, `ListSubClientTransfers`, `ListGroupTransfers` |
+
+## Lisensi
+
+MIT
