@@ -1,0 +1,213 @@
+// gRPC surface of the client API (/api/v2), for server-to-server callers.
+//
+// Every RPC runs the same route as its REST twin (named on each RPC), in
+// process, through the same API-key and sub-client middleware. So the rules,
+// limits and error messages are the REST ones; only the transport differs.
+//
+// Metadata:
+//   x-api-key      required, the client's API key
+//   x-sub-client   optional, act as one sub-client by sub_ref
+//   for-user-id    optional, act as one sub-client by sub_id
+//
+// Field names are the REST JSON keys, so the REST docs apply field for field.
+// Ids are int32 on purpose: protojson writes int64 as a JSON string, which the
+// REST handlers reject.
+//
+// Errors map from the REST status: 400 InvalidArgument, 401 Unauthenticated,
+// 403 PermissionDenied, 404 NotFound, 409 AlreadyExists, 422 FailedPrecondition,
+// 429 ResourceExhausted, 502/503/504 Unavailable, other 5xx Internal. When the
+// REST error carries data (a 409 checkout returns the existing bill), it rides
+// along as a google.protobuf.Value status detail.
+syntax = "proto3";
+
+package sarana.v1;
+
+import "google/protobuf/struct.proto";
+
+option go_package = "github.com/SaranaTechnology/internal-mono-reppo/apps/api-go/pkg/grpcapi/saranav1;saranav1";
+
+// Result is the REST envelope minus success/code: data is the "data" field as
+// is (object or array), meta is set on list calls.
+message Result {
+  string message = 1;
+  google.protobuf.Value data = 2;
+  Meta meta = 3;
+}
+
+message Meta {
+  int32 total = 1;
+  int32 per_page = 2;
+  int32 current_page = 3;
+  int32 last_page = 4;
+}
+
+message Empty {}
+
+message ByID {
+  int32 id = 1;
+}
+
+message ByExternalID {
+  string external_id = 1;
+}
+
+// ListRequest filters list calls. group=true lists the parent and every
+// sub-client together; it cannot be combined with a sub-client header.
+message ListRequest {
+  int32 page = 1;
+  int32 per_page = 2; // max 100
+  string status = 3;
+  bool group = 4;
+}
+
+// ---------- Payments ----------
+
+service Payments {
+  // POST /payments/invoice
+  rpc CreateInvoice(InvoiceRequest) returns (Result);
+  // POST /payments/va
+  rpc CreateVA(VARequest) returns (Result);
+  // POST /payments/ewallet
+  rpc CreateEWallet(EWalletRequest) returns (Result);
+  // POST /payments/qris
+  rpc CreateQRIS(QRISRequest) returns (Result);
+  // GET /payments/:id/status
+  rpc GetPaymentStatus(PaymentStatusRequest) returns (Result);
+  // GET /payments/methods
+  rpc ListPaymentMethods(Empty) returns (Result);
+}
+
+message InvoiceRequest {
+  double amount = 1; // minimum 1000
+  string external_id = 2;
+  string description = 3;
+  string customer_name = 4;
+  string customer_email = 5;
+  repeated string payment_methods = 6;
+  int32 expiry_duration = 7; // seconds
+  string success_url = 8;
+  string failure_url = 9;
+  string callback_url = 10;
+  google.protobuf.Struct metadata = 11;
+  int32 app_id = 12; // required when the account has more than one app
+}
+
+message VARequest {
+  double amount = 1;
+  string bank_code = 2; // BCA, BNI, BRI, MANDIRI, ...
+  string customer_name = 3;
+  int32 app_id = 4;
+}
+
+message EWalletRequest {
+  double amount = 1;
+  string channel_code = 2; // OVO, DANA, SHOPEEPAY, LINKAJA
+  string customer_phone = 3;
+  string success_url = 4;
+  int32 app_id = 5;
+}
+
+message QRISRequest {
+  double amount = 1;
+  int32 app_id = 2;
+}
+
+message PaymentStatusRequest {
+  string id = 1; // transaction_id or numeric id
+}
+
+// ---------- Transactions ----------
+
+service Transactions {
+  // GET /transactions
+  rpc ListTransactions(ListRequest) returns (Result);
+  // GET /transactions/:id
+  rpc GetTransaction(ByID) returns (Result);
+  // GET /transactions/external/:externalId — AlreadyExists when the id exists
+  // under several sub-clients; send for-user-id.
+  rpc GetTransactionByExternalID(ByExternalID) returns (Result);
+}
+
+// ---------- Withdrawals ----------
+
+service Withdrawals {
+  // POST /withdrawals
+  rpc CreateWithdrawal(WithdrawalRequest) returns (Result);
+  // GET /withdrawals
+  rpc ListWithdrawals(ListRequest) returns (Result);
+  // GET /withdrawals/:id
+  rpc GetWithdrawal(ByID) returns (Result);
+  // GET /withdrawals/external/:externalId
+  rpc GetWithdrawalByExternalID(ByExternalID) returns (Result);
+  // POST /withdrawals/:id/cancel
+  rpc CancelWithdrawal(ByID) returns (Result);
+}
+
+// WithdrawalRequest pays out to the bank account on file; url receives the
+// status callback.
+message WithdrawalRequest {
+  double jumlah = 1;
+  double biaya_penarikan = 2;
+  string by = 3;
+  string url = 4;
+}
+
+// ---------- Account ----------
+
+service Account {
+  // GET /account
+  rpc GetAccount(Empty) returns (Result);
+  // GET /account/balance
+  rpc GetBalance(Empty) returns (Result);
+  // PATCH /account/auto-withdrawal
+  rpc SetAutoWithdrawal(AutoWithdrawalRequest) returns (Result);
+  // GET /account/kyc
+  rpc GetKYC(Empty) returns (Result);
+}
+
+message AutoWithdrawalRequest {
+  // optional so false is sent: the API answers 400 without it.
+  optional bool enabled = 1;
+}
+
+// ---------- Fees ----------
+
+service Fees {
+  // GET /fees/rates
+  rpc FeeRates(Empty) returns (Result);
+  // POST /fees/calculate
+  rpc CalculateFee(FeeRequest) returns (Result);
+  // POST /fees/calculate/amount-to-pay
+  rpc CalculateAmountToPay(AmountToPayRequest) returns (Result);
+}
+
+message FeeRequest {
+  double amount = 1;
+  string channel_code = 2;
+  bool include_vat = 3;
+}
+
+message AmountToPayRequest {
+  double net_amount = 1;
+  string channel_code = 2;
+  bool include_vat = 3;
+}
+
+// ---------- Subscriptions ----------
+
+service Subscriptions {
+  // POST /subscriptions/checkout — AlreadyExists when external_id is already
+  // paid or closed; the bill is in the status details.
+  rpc Checkout(CheckoutRequest) returns (Result);
+  // GET /subscriptions/checkout/:external_id
+  rpc CheckoutStatus(ByExternalID) returns (Result);
+}
+
+message CheckoutRequest {
+  string plan_code = 1;
+  string external_id = 2;
+  string payer_name = 3;
+  string payer_email = 4;
+  string success_url = 5;
+  string failure_url = 6;
+}

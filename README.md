@@ -117,6 +117,26 @@ st, err := c.GetKYC(ctx)
 
 Sub-client tidak mengajukan KYC sendiri (`422`). Verifikasinya ikut induk, dan `GetKYC` mengembalikan `ikut_induk: true`.
 
+## gRPC (opsional)
+
+Selain REST, API yang sama tersedia lewat gRPC (`saranapb/sarana.proto`, package `sarana.v1`). Stub-nya ada di modul terpisah supaya `sarana-go` tetap tanpa dependency:
+
+```bash
+go get github.com/SaranaTechnology/sarana-go/saranapb
+```
+
+```go
+conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(credentials.NewTLS(nil)))
+ctx = metadata.AppendToOutgoingContext(ctx, "x-api-key", key /*, "x-sub-client", "OUTLET-01" */)
+
+res, err := saranapb.NewPaymentsClient(conn).CreateInvoice(ctx, &saranapb.InvoiceRequest{
+	Amount: 150000, ExternalId: "ORDER-1001",
+})
+url := res.GetData().GetStructValue().AsMap()["invoice_url"]
+```
+
+Tiap RPC menjalankan route REST kembarannya, jadi aturan dan pesan error-nya sama. Status HTTP dipetakan ke kode gRPC: 400 `InvalidArgument`, 401 `Unauthenticated`, 404 `NotFound`, 409 `AlreadyExists`, 422 `FailedPrecondition`, 5xx `Unavailable`/`Internal`. Alamat endpoint gRPC diumumkan terpisah. Selama belum ada, pakai REST.
+
 ## Daftar method
 
 | Grup | Method |
