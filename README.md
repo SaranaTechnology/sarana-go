@@ -72,6 +72,51 @@ http.HandleFunc("/sarana/callback", func(w http.ResponseWriter, r *http.Request)
 
 Callback invoice dikirim saat status `PAID`, `SETTLED`, atau `EXPIRED`. Status pending tidak dikirim, jadi pakai `PaymentStatus` untuk polling. Transaksi milik sub-client membawa `cb.SubID` dan `cb.SubRef`.
 
+## Langganan (jual paket Sarana dari produkmu)
+
+```go
+bill, err := c.Checkout(ctx, sarana.CheckoutRequest{
+	PlanCode:   "cashier-pro",
+	ExternalID: "SUB-TOKO-42-2026-11", // referensimu; dipanggil ulang = tagihan yang sama
+	PayerEmail: "pemilik@tokoku.id",
+})
+// arahkan pembeli ke bill["checkout_url"]
+```
+
+`409` berarti `external_id` itu sudah dibayar atau ditutup. Isi tagihannya ada di `Error.Body`: kalau sudah `paid`, aktifkan paketnya. Kalau tidak, buat `external_id` baru. Status bisa dibaca kapan saja dengan `CheckoutStatus`.
+
+## Webhook (bertanda tangan)
+
+Webhook yang didaftarkan untuk akunmu (`subscription.paid`, `subscription.expired`) ditandatangani dengan secret webhook. Beda dengan callback invoice di atas, isinya bisa dipercaya setelah lolos verifikasi.
+
+```go
+http.HandleFunc("/sarana/webhook", func(w http.ResponseWriter, r *http.Request) {
+	ev, err := sarana.ParseWebhook(r, os.Getenv("SARANA_WEBHOOK_SECRET"))
+	if err != nil {
+		http.Error(w, "unauthorized", 401) // signature salah atau timestamp > 5 menit
+		return
+	}
+	w.WriteHeader(200)
+	// ev.DeliveryID untuk dedupe: webhook yang sama bisa dikirim ulang.
+	if ev.Event == sarana.EventSubscriptionPaid {
+		// aktifkan paket ev.Data["external_id"]
+	}
+})
+```
+
+Selama rotasi secret, header `X-Sarana-Signature` membawa dua signature. Secret lama dan baru sama-sama diterima.
+
+## KYC
+
+```go
+f, _ := os.Open("ktp.pdf")
+file, err := c.UploadKYCDocument(ctx, "ktp.pdf", f) // file["id"] dipakai di payload
+v, err := c.SubmitKYC(ctx, payload)                // skema account_verification Xendit
+st, err := c.GetKYC(ctx)
+```
+
+Sub-client tidak mengajukan KYC sendiri (`422`). Verifikasinya ikut induk, dan `GetKYC` mengembalikan `ikut_induk: true`.
+
 ## Daftar method
 
 | Grup | Method |
@@ -82,7 +127,10 @@ Callback invoice dikirim saat status `PAID`, `SETTLED`, atau `EXPIRED`. Status p
 | Withdrawals | `ListWithdrawals`, `CreateWithdrawal`, `GetWithdrawal`, `GetWithdrawalByExternalID`, `CancelWithdrawal` |
 | Settlements | `CreateSettlement` |
 | Bank channels | `ActiveBankChannels`, `GetBankChannel` |
-| Account | `GetAccount`, `UpdateAccount`, `GetBalance`, `ListApps` |
+| Account | `GetAccount`, `UpdateAccount`, `GetBalance`, `SetAutoWithdrawal`, `ListApps` |
+| KYC | `GetKYC`, `UploadKYCDocument`, `SubmitKYC` |
+| Langganan | `Checkout`, `CheckoutStatus` |
+| Webhook | `ParseWebhook`, `VerifyWebhook` |
 | Sub-clients | `BalanceSummary`, `ListSubClients`, `GetSubClient`, `TransferSubClient`, `ListSubClientTransfers`, `ListGroupTransfers` |
 
 ## Lisensi

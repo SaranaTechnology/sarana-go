@@ -26,7 +26,7 @@ const (
 	SandboxURL = "https://api.internal-go.saranatechnology.com/api/v2"
 
 	// Version is sent in the User-Agent header.
-	Version = "0.1.0"
+	Version = "0.2.0"
 )
 
 // Object is a decoded JSON object from the API.
@@ -114,6 +114,13 @@ func (c *Client) ForSubRef(subRef string) *Client {
 	return &cp
 }
 
+// rawBody is a request body sent as is: a JSON document the caller already
+// encoded, or a multipart form.
+type rawBody struct {
+	data        []byte
+	contentType string
+}
+
 type envelope struct {
 	Success bool            `json:"success"`
 	Message string          `json:"message"`
@@ -131,12 +138,17 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 	}
 
 	var reader io.Reader
-	if body != nil {
-		b, err := json.Marshal(body)
+	contentType := ""
+	switch b := body.(type) {
+	case nil:
+	case rawBody:
+		reader, contentType = bytes.NewReader(b.data), b.contentType
+	default:
+		j, err := json.Marshal(body)
 		if err != nil {
 			return nil, err
 		}
-		reader = bytes.NewReader(b)
+		reader, contentType = bytes.NewReader(j), "application/json"
 	}
 
 	req, err := http.NewRequestWithContext(ctx, method, u, reader)
@@ -146,8 +158,8 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 	req.Header.Set("X-API-Key", c.apiKey)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.userAgent)
-	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
 	}
 	if scoped && c.subValue != "" {
 		req.Header.Set(c.subHeader, c.subValue)

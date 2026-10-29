@@ -1,7 +1,11 @@
 package sarana
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -344,4 +348,77 @@ func (c *Client) ListSubClientTransfers(ctx context.Context, key string, p ListP
 // ListGroupTransfers lists every parent ↔ sub-client transfer, newest first.
 func (c *Client) ListGroupTransfers(ctx context.Context, p ListParams) (*List, error) {
 	return c.list(ctx, "/group-transfers", p.values(), false)
+}
+
+// SetAutoWithdrawal turns auto-approved withdrawals on or off for the account
+// (or sub-client). Turning it on needs complete bank info on file (400 if not).
+func (c *Client) SetAutoWithdrawal(ctx context.Context, enabled bool) (Object, error) {
+	return c.object(ctx, http.MethodPatch, "/account/auto-withdrawal", nil, map[string]bool{"enabled": enabled}, true)
+}
+
+// ---------- KYC (Xendit sub-account verification) ----------
+
+// GetKYC returns the sub-account status and its verification ("verification"
+// is null until something is submitted). A sub-client gets its parent's, with
+// "ikut_induk": true.
+func (c *Client) GetKYC(ctx context.Context) (Object, error) {
+	return c.object(ctx, http.MethodGet, "/account/kyc", nil, nil, true)
+}
+
+// UploadKYCDocument uploads one document (PDF, PNG or JPG, max 10MB) and
+// returns Xendit's file id, which SubmitKYC's payload then refers to.
+// A sub-client cannot upload its own (422): its verification is its parent's.
+func (c *Client) UploadKYCDocument(ctx context.Context, filename string, file io.Reader) (Object, error) {
+	var buf bytes.Buffer
+	w := multipart.NewWriter(&buf)
+	part, err := w.CreateFormFile("file", filename)
+	if err != nil {
+		return nil, err
+	}
+	if _, err := io.Copy(part, file); err != nil {
+		return nil, err
+	}
+	if err := w.Close(); err != nil {
+		return nil, err
+	}
+	return c.object(ctx, http.MethodPost, "/account/kyc/files", nil, rawBody{buf.Bytes(), w.FormDataContentType()}, true)
+}
+
+// SubmitKYC sends the verification. payload follows Xendit's "Submit account
+// verification" schema and is forwarded unchanged, so pass a struct, a map, or
+// a json.RawMessage. Xendit's validation errors come back as *Error with its
+// status (4xx) and message.
+func (c *Client) SubmitKYC(ctx context.Context, payload any) (Object, error) {
+	if raw, ok := payload.(json.RawMessage); ok {
+		return c.object(ctx, http.MethodPost, "/account/kyc", nil, rawBody{raw, "application/json"}, true)
+	}
+	return c.object(ctx, http.MethodPost, "/account/kyc", nil, payload, true)
+}
+
+// ---------- Subscriptions (sell Sarana plans from your product) ----------
+
+// CheckoutRequest opens a payment page for one plan. ExternalID is your
+// reference: calling again with the same one while the bill is open returns
+// that bill instead of a new one.
+type CheckoutRequest struct {
+	PlanCode   string `json:"plan_code"`
+	ExternalID string `json:"external_id"`
+	PayerName  string `json:"payer_name,omitempty"`
+	PayerEmail string `json:"payer_email,omitempty"`
+	SuccessURL string `json:"success_url,omitempty"`
+	FailureURL string `json:"failure_url,omitempty"`
+}
+
+// Checkout creates (201) or returns the still-open (200) bill for
+// req.ExternalID. Errors: 409 when that external_id is already paid or closed
+// (the bill is in Error.Body; start over with a new external_id only if it was
+// not paid), 422 plan not purchasable, 502 gateway refused (safe to retry).
+func (c *Client) Checkout(ctx context.Context, req CheckoutRequest) (Object, error) {
+	return c.object(ctx, http.MethodPost, "/subscriptions/checkout", nil, req, true)
+}
+
+// CheckoutStatus reads a bill by your external_id. Another account's
+// external_id is a 404.
+func (c *Client) CheckoutStatus(ctx context.Context, externalID string) (Object, error) {
+	return c.object(ctx, http.MethodGet, "/subscriptions/checkout/"+seg(externalID), nil, nil, true)
 }
