@@ -798,6 +798,8 @@ const (
 	Account_GetBalance_FullMethodName        = "/sarana.v1.Account/GetBalance"
 	Account_SetAutoWithdrawal_FullMethodName = "/sarana.v1.Account/SetAutoWithdrawal"
 	Account_GetKYC_FullMethodName            = "/sarana.v1.Account/GetKYC"
+	Account_UpdateAccount_FullMethodName     = "/sarana.v1.Account/UpdateAccount"
+	Account_ListApps_FullMethodName          = "/sarana.v1.Account/ListApps"
 )
 
 // AccountClient is the client API for Account service.
@@ -812,6 +814,11 @@ type AccountClient interface {
 	SetAutoWithdrawal(ctx context.Context, in *AutoWithdrawalRequest, opts ...grpc.CallOption) (*Result, error)
 	// GET /account/kyc
 	GetKYC(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Result, error)
+	// PUT /account — only the fields set are changed. A sub-client cannot
+	// change norek/bank/account_holder_name (PermissionDenied).
+	UpdateAccount(ctx context.Context, in *AccountUpdate, opts ...grpc.CallOption) (*Result, error)
+	// GET /apps — pass an id as app_id when the account has more than one
+	ListApps(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Result, error)
 }
 
 type accountClient struct {
@@ -862,6 +869,26 @@ func (c *accountClient) GetKYC(ctx context.Context, in *Empty, opts ...grpc.Call
 	return out, nil
 }
 
+func (c *accountClient) UpdateAccount(ctx context.Context, in *AccountUpdate, opts ...grpc.CallOption) (*Result, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Result)
+	err := c.cc.Invoke(ctx, Account_UpdateAccount_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountClient) ListApps(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Result, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Result)
+	err := c.cc.Invoke(ctx, Account_ListApps_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AccountServer is the server API for Account service.
 // All implementations must embed UnimplementedAccountServer
 // for forward compatibility.
@@ -874,6 +901,11 @@ type AccountServer interface {
 	SetAutoWithdrawal(context.Context, *AutoWithdrawalRequest) (*Result, error)
 	// GET /account/kyc
 	GetKYC(context.Context, *Empty) (*Result, error)
+	// PUT /account — only the fields set are changed. A sub-client cannot
+	// change norek/bank/account_holder_name (PermissionDenied).
+	UpdateAccount(context.Context, *AccountUpdate) (*Result, error)
+	// GET /apps — pass an id as app_id when the account has more than one
+	ListApps(context.Context, *Empty) (*Result, error)
 	mustEmbedUnimplementedAccountServer()
 }
 
@@ -895,6 +927,12 @@ func (UnimplementedAccountServer) SetAutoWithdrawal(context.Context, *AutoWithdr
 }
 func (UnimplementedAccountServer) GetKYC(context.Context, *Empty) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetKYC not implemented")
+}
+func (UnimplementedAccountServer) UpdateAccount(context.Context, *AccountUpdate) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAccount not implemented")
+}
+func (UnimplementedAccountServer) ListApps(context.Context, *Empty) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListApps not implemented")
 }
 func (UnimplementedAccountServer) mustEmbedUnimplementedAccountServer() {}
 func (UnimplementedAccountServer) testEmbeddedByValue()                 {}
@@ -989,6 +1027,42 @@ func _Account_GetKYC_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Account_UpdateAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccountUpdate)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).UpdateAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_UpdateAccount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).UpdateAccount(ctx, req.(*AccountUpdate))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Account_ListApps_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountServer).ListApps(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Account_ListApps_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountServer).ListApps(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Account_ServiceDesc is the grpc.ServiceDesc for Account service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1012,15 +1086,25 @@ var Account_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "GetKYC",
 			Handler:    _Account_GetKYC_Handler,
 		},
+		{
+			MethodName: "UpdateAccount",
+			Handler:    _Account_UpdateAccount_Handler,
+		},
+		{
+			MethodName: "ListApps",
+			Handler:    _Account_ListApps_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "sarana/v1/sarana.proto",
 }
 
 const (
-	Fees_FeeRates_FullMethodName             = "/sarana.v1.Fees/FeeRates"
-	Fees_CalculateFee_FullMethodName         = "/sarana.v1.Fees/CalculateFee"
-	Fees_CalculateAmountToPay_FullMethodName = "/sarana.v1.Fees/CalculateAmountToPay"
+	Fees_FeeRates_FullMethodName               = "/sarana.v1.Fees/FeeRates"
+	Fees_CalculateFee_FullMethodName           = "/sarana.v1.Fees/CalculateFee"
+	Fees_CalculateAmountToPay_FullMethodName   = "/sarana.v1.Fees/CalculateAmountToPay"
+	Fees_SettlementSchedule_FullMethodName     = "/sarana.v1.Fees/SettlementSchedule"
+	Fees_CalculateWithdrawalFee_FullMethodName = "/sarana.v1.Fees/CalculateWithdrawalFee"
 )
 
 // FeesClient is the client API for Fees service.
@@ -1033,6 +1117,10 @@ type FeesClient interface {
 	CalculateFee(ctx context.Context, in *FeeRequest, opts ...grpc.CallOption) (*Result, error)
 	// POST /fees/calculate/amount-to-pay
 	CalculateAmountToPay(ctx context.Context, in *AmountToPayRequest, opts ...grpc.CallOption) (*Result, error)
+	// GET /fees/settlement — when paid money becomes withdrawable, per channel
+	SettlementSchedule(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Result, error)
+	// POST /fees/calculate/withdrawal
+	CalculateWithdrawalFee(ctx context.Context, in *WithdrawalFeeRequest, opts ...grpc.CallOption) (*Result, error)
 }
 
 type feesClient struct {
@@ -1073,6 +1161,26 @@ func (c *feesClient) CalculateAmountToPay(ctx context.Context, in *AmountToPayRe
 	return out, nil
 }
 
+func (c *feesClient) SettlementSchedule(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Result, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Result)
+	err := c.cc.Invoke(ctx, Fees_SettlementSchedule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *feesClient) CalculateWithdrawalFee(ctx context.Context, in *WithdrawalFeeRequest, opts ...grpc.CallOption) (*Result, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Result)
+	err := c.cc.Invoke(ctx, Fees_CalculateWithdrawalFee_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // FeesServer is the server API for Fees service.
 // All implementations must embed UnimplementedFeesServer
 // for forward compatibility.
@@ -1083,6 +1191,10 @@ type FeesServer interface {
 	CalculateFee(context.Context, *FeeRequest) (*Result, error)
 	// POST /fees/calculate/amount-to-pay
 	CalculateAmountToPay(context.Context, *AmountToPayRequest) (*Result, error)
+	// GET /fees/settlement — when paid money becomes withdrawable, per channel
+	SettlementSchedule(context.Context, *Empty) (*Result, error)
+	// POST /fees/calculate/withdrawal
+	CalculateWithdrawalFee(context.Context, *WithdrawalFeeRequest) (*Result, error)
 	mustEmbedUnimplementedFeesServer()
 }
 
@@ -1101,6 +1213,12 @@ func (UnimplementedFeesServer) CalculateFee(context.Context, *FeeRequest) (*Resu
 }
 func (UnimplementedFeesServer) CalculateAmountToPay(context.Context, *AmountToPayRequest) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CalculateAmountToPay not implemented")
+}
+func (UnimplementedFeesServer) SettlementSchedule(context.Context, *Empty) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SettlementSchedule not implemented")
+}
+func (UnimplementedFeesServer) CalculateWithdrawalFee(context.Context, *WithdrawalFeeRequest) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CalculateWithdrawalFee not implemented")
 }
 func (UnimplementedFeesServer) mustEmbedUnimplementedFeesServer() {}
 func (UnimplementedFeesServer) testEmbeddedByValue()              {}
@@ -1177,6 +1295,42 @@ func _Fees_CalculateAmountToPay_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Fees_SettlementSchedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FeesServer).SettlementSchedule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Fees_SettlementSchedule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FeesServer).SettlementSchedule(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Fees_CalculateWithdrawalFee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WithdrawalFeeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FeesServer).CalculateWithdrawalFee(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Fees_CalculateWithdrawalFee_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FeesServer).CalculateWithdrawalFee(ctx, req.(*WithdrawalFeeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Fees_ServiceDesc is the grpc.ServiceDesc for Fees service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1195,6 +1349,158 @@ var Fees_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CalculateAmountToPay",
 			Handler:    _Fees_CalculateAmountToPay_Handler,
+		},
+		{
+			MethodName: "SettlementSchedule",
+			Handler:    _Fees_SettlementSchedule_Handler,
+		},
+		{
+			MethodName: "CalculateWithdrawalFee",
+			Handler:    _Fees_CalculateWithdrawalFee_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "sarana/v1/sarana.proto",
+}
+
+const (
+	BankChannels_ListActiveBankChannels_FullMethodName = "/sarana.v1.BankChannels/ListActiveBankChannels"
+	BankChannels_GetBankChannel_FullMethodName         = "/sarana.v1.BankChannels/GetBankChannel"
+)
+
+// BankChannelsClient is the client API for BankChannels service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type BankChannelsClient interface {
+	// GET /bank-channels/active
+	ListActiveBankChannels(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Result, error)
+	// GET /bank-channels/code/:code
+	GetBankChannel(ctx context.Context, in *BankCode, opts ...grpc.CallOption) (*Result, error)
+}
+
+type bankChannelsClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewBankChannelsClient(cc grpc.ClientConnInterface) BankChannelsClient {
+	return &bankChannelsClient{cc}
+}
+
+func (c *bankChannelsClient) ListActiveBankChannels(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Result, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Result)
+	err := c.cc.Invoke(ctx, BankChannels_ListActiveBankChannels_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bankChannelsClient) GetBankChannel(ctx context.Context, in *BankCode, opts ...grpc.CallOption) (*Result, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Result)
+	err := c.cc.Invoke(ctx, BankChannels_GetBankChannel_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// BankChannelsServer is the server API for BankChannels service.
+// All implementations must embed UnimplementedBankChannelsServer
+// for forward compatibility.
+type BankChannelsServer interface {
+	// GET /bank-channels/active
+	ListActiveBankChannels(context.Context, *Empty) (*Result, error)
+	// GET /bank-channels/code/:code
+	GetBankChannel(context.Context, *BankCode) (*Result, error)
+	mustEmbedUnimplementedBankChannelsServer()
+}
+
+// UnimplementedBankChannelsServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedBankChannelsServer struct{}
+
+func (UnimplementedBankChannelsServer) ListActiveBankChannels(context.Context, *Empty) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListActiveBankChannels not implemented")
+}
+func (UnimplementedBankChannelsServer) GetBankChannel(context.Context, *BankCode) (*Result, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBankChannel not implemented")
+}
+func (UnimplementedBankChannelsServer) mustEmbedUnimplementedBankChannelsServer() {}
+func (UnimplementedBankChannelsServer) testEmbeddedByValue()                      {}
+
+// UnsafeBankChannelsServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to BankChannelsServer will
+// result in compilation errors.
+type UnsafeBankChannelsServer interface {
+	mustEmbedUnimplementedBankChannelsServer()
+}
+
+func RegisterBankChannelsServer(s grpc.ServiceRegistrar, srv BankChannelsServer) {
+	// If the following call pancis, it indicates UnimplementedBankChannelsServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&BankChannels_ServiceDesc, srv)
+}
+
+func _BankChannels_ListActiveBankChannels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BankChannelsServer).ListActiveBankChannels(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BankChannels_ListActiveBankChannels_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BankChannelsServer).ListActiveBankChannels(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BankChannels_GetBankChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BankCode)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BankChannelsServer).GetBankChannel(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BankChannels_GetBankChannel_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BankChannelsServer).GetBankChannel(ctx, req.(*BankCode))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// BankChannels_ServiceDesc is the grpc.ServiceDesc for BankChannels service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var BankChannels_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "sarana.v1.BankChannels",
+	HandlerType: (*BankChannelsServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListActiveBankChannels",
+			Handler:    _BankChannels_ListActiveBankChannels_Handler,
+		},
+		{
+			MethodName: "GetBankChannel",
+			Handler:    _BankChannels_GetBankChannel_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

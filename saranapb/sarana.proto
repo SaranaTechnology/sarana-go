@@ -163,6 +163,23 @@ service Account {
   rpc SetAutoWithdrawal(AutoWithdrawalRequest) returns (Result);
   // GET /account/kyc
   rpc GetKYC(Empty) returns (Result);
+  // PUT /account — only the fields set are changed. A sub-client cannot
+  // change norek/bank/account_holder_name (PermissionDenied).
+  rpc UpdateAccount(AccountUpdate) returns (Result);
+  // GET /apps — pass an id as app_id when the account has more than one
+  rpc ListApps(Empty) returns (Result);
+}
+
+message AccountUpdate {
+  optional string nama = 1;
+  optional string email = 2;
+  optional string alamat = 3;
+  optional string pic = 4;
+  optional string no_telp_pic = 5;
+  optional string email_pic = 6;
+  optional string norek = 7;
+  optional string bank = 8;
+  optional string account_holder_name = 9;
 }
 
 message AutoWithdrawalRequest {
@@ -179,6 +196,15 @@ service Fees {
   rpc CalculateFee(FeeRequest) returns (Result);
   // POST /fees/calculate/amount-to-pay
   rpc CalculateAmountToPay(AmountToPayRequest) returns (Result);
+  // GET /fees/settlement — when paid money becomes withdrawable, per channel
+  rpc SettlementSchedule(Empty) returns (Result);
+  // POST /fees/calculate/withdrawal
+  rpc CalculateWithdrawalFee(WithdrawalFeeRequest) returns (Result);
+}
+
+message WithdrawalFeeRequest {
+  double amount = 1;
+  string bank_code = 2;
 }
 
 message FeeRequest {
@@ -191,6 +217,19 @@ message AmountToPayRequest {
   double net_amount = 1;
   string channel_code = 2;
   bool include_vat = 3;
+}
+
+// ---------- Bank channels ----------
+
+service BankChannels {
+  // GET /bank-channels/active
+  rpc ListActiveBankChannels(Empty) returns (Result);
+  // GET /bank-channels/code/:code
+  rpc GetBankChannel(BankCode) returns (Result);
+}
+
+message BankCode {
+  string code = 1;
 }
 
 // ---------- Subscriptions ----------

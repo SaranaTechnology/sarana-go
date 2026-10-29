@@ -809,6 +809,114 @@ func (x *WithdrawalRequest) GetUrl() string {
 	return ""
 }
 
+type AccountUpdate struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Nama              *string                `protobuf:"bytes,1,opt,name=nama,proto3,oneof" json:"nama,omitempty"`
+	Email             *string                `protobuf:"bytes,2,opt,name=email,proto3,oneof" json:"email,omitempty"`
+	Alamat            *string                `protobuf:"bytes,3,opt,name=alamat,proto3,oneof" json:"alamat,omitempty"`
+	Pic               *string                `protobuf:"bytes,4,opt,name=pic,proto3,oneof" json:"pic,omitempty"`
+	NoTelpPic         *string                `protobuf:"bytes,5,opt,name=no_telp_pic,json=noTelpPic,proto3,oneof" json:"no_telp_pic,omitempty"`
+	EmailPic          *string                `protobuf:"bytes,6,opt,name=email_pic,json=emailPic,proto3,oneof" json:"email_pic,omitempty"`
+	Norek             *string                `protobuf:"bytes,7,opt,name=norek,proto3,oneof" json:"norek,omitempty"`
+	Bank              *string                `protobuf:"bytes,8,opt,name=bank,proto3,oneof" json:"bank,omitempty"`
+	AccountHolderName *string                `protobuf:"bytes,9,opt,name=account_holder_name,json=accountHolderName,proto3,oneof" json:"account_holder_name,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *AccountUpdate) Reset() {
+	*x = AccountUpdate{}
+	mi := &file_sarana_v1_sarana_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccountUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccountUpdate) ProtoMessage() {}
+
+func (x *AccountUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_sarana_v1_sarana_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AccountUpdate.ProtoReflect.Descriptor instead.
+func (*AccountUpdate) Descriptor() ([]byte, []int) {
+	return file_sarana_v1_sarana_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *AccountUpdate) GetNama() string {
+	if x != nil && x.Nama != nil {
+		return *x.Nama
+	}
+	return ""
+}
+
+func (x *AccountUpdate) GetEmail() string {
+	if x != nil && x.Email != nil {
+		return *x.Email
+	}
+	return ""
+}
+
+func (x *AccountUpdate) GetAlamat() string {
+	if x != nil && x.Alamat != nil {
+		return *x.Alamat
+	}
+	return ""
+}
+
+func (x *AccountUpdate) GetPic() string {
+	if x != nil && x.Pic != nil {
+		return *x.Pic
+	}
+	return ""
+}
+
+func (x *AccountUpdate) GetNoTelpPic() string {
+	if x != nil && x.NoTelpPic != nil {
+		return *x.NoTelpPic
+	}
+	return ""
+}
+
+func (x *AccountUpdate) GetEmailPic() string {
+	if x != nil && x.EmailPic != nil {
+		return *x.EmailPic
+	}
+	return ""
+}
+
+func (x *AccountUpdate) GetNorek() string {
+	if x != nil && x.Norek != nil {
+		return *x.Norek
+	}
+	return ""
+}
+
+func (x *AccountUpdate) GetBank() string {
+	if x != nil && x.Bank != nil {
+		return *x.Bank
+	}
+	return ""
+}
+
+func (x *AccountUpdate) GetAccountHolderName() string {
+	if x != nil && x.AccountHolderName != nil {
+		return *x.AccountHolderName
+	}
+	return ""
+}
+
 type AutoWithdrawalRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// optional so false is sent: the API answers 400 without it.
@@ -819,7 +927,7 @@ type AutoWithdrawalRequest struct {
 
 func (x *AutoWithdrawalRequest) Reset() {
 	*x = AutoWithdrawalRequest{}
-	mi := &file_sarana_v1_sarana_proto_msgTypes[12]
+	mi := &file_sarana_v1_sarana_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -831,7 +939,7 @@ func (x *AutoWithdrawalRequest) String() string {
 func (*AutoWithdrawalRequest) ProtoMessage() {}
 
 func (x *AutoWithdrawalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sarana_v1_sarana_proto_msgTypes[12]
+	mi := &file_sarana_v1_sarana_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -844,7 +952,7 @@ func (x *AutoWithdrawalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AutoWithdrawalRequest.ProtoReflect.Descriptor instead.
 func (*AutoWithdrawalRequest) Descriptor() ([]byte, []int) {
-	return file_sarana_v1_sarana_proto_rawDescGZIP(), []int{12}
+	return file_sarana_v1_sarana_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AutoWithdrawalRequest) GetEnabled() bool {
@@ -852,6 +960,58 @@ func (x *AutoWithdrawalRequest) GetEnabled() bool {
 		return *x.Enabled
 	}
 	return false
+}
+
+type WithdrawalFeeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Amount        float64                `protobuf:"fixed64,1,opt,name=amount,proto3" json:"amount,omitempty"`
+	BankCode      string                 `protobuf:"bytes,2,opt,name=bank_code,json=bankCode,proto3" json:"bank_code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WithdrawalFeeRequest) Reset() {
+	*x = WithdrawalFeeRequest{}
+	mi := &file_sarana_v1_sarana_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WithdrawalFeeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WithdrawalFeeRequest) ProtoMessage() {}
+
+func (x *WithdrawalFeeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sarana_v1_sarana_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WithdrawalFeeRequest.ProtoReflect.Descriptor instead.
+func (*WithdrawalFeeRequest) Descriptor() ([]byte, []int) {
+	return file_sarana_v1_sarana_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *WithdrawalFeeRequest) GetAmount() float64 {
+	if x != nil {
+		return x.Amount
+	}
+	return 0
+}
+
+func (x *WithdrawalFeeRequest) GetBankCode() string {
+	if x != nil {
+		return x.BankCode
+	}
+	return ""
 }
 
 type FeeRequest struct {
@@ -865,7 +1025,7 @@ type FeeRequest struct {
 
 func (x *FeeRequest) Reset() {
 	*x = FeeRequest{}
-	mi := &file_sarana_v1_sarana_proto_msgTypes[13]
+	mi := &file_sarana_v1_sarana_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -877,7 +1037,7 @@ func (x *FeeRequest) String() string {
 func (*FeeRequest) ProtoMessage() {}
 
 func (x *FeeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sarana_v1_sarana_proto_msgTypes[13]
+	mi := &file_sarana_v1_sarana_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -890,7 +1050,7 @@ func (x *FeeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FeeRequest.ProtoReflect.Descriptor instead.
 func (*FeeRequest) Descriptor() ([]byte, []int) {
-	return file_sarana_v1_sarana_proto_rawDescGZIP(), []int{13}
+	return file_sarana_v1_sarana_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *FeeRequest) GetAmount() float64 {
@@ -925,7 +1085,7 @@ type AmountToPayRequest struct {
 
 func (x *AmountToPayRequest) Reset() {
 	*x = AmountToPayRequest{}
-	mi := &file_sarana_v1_sarana_proto_msgTypes[14]
+	mi := &file_sarana_v1_sarana_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -937,7 +1097,7 @@ func (x *AmountToPayRequest) String() string {
 func (*AmountToPayRequest) ProtoMessage() {}
 
 func (x *AmountToPayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sarana_v1_sarana_proto_msgTypes[14]
+	mi := &file_sarana_v1_sarana_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -950,7 +1110,7 @@ func (x *AmountToPayRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AmountToPayRequest.ProtoReflect.Descriptor instead.
 func (*AmountToPayRequest) Descriptor() ([]byte, []int) {
-	return file_sarana_v1_sarana_proto_rawDescGZIP(), []int{14}
+	return file_sarana_v1_sarana_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *AmountToPayRequest) GetNetAmount() float64 {
@@ -974,6 +1134,50 @@ func (x *AmountToPayRequest) GetIncludeVat() bool {
 	return false
 }
 
+type BankCode struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BankCode) Reset() {
+	*x = BankCode{}
+	mi := &file_sarana_v1_sarana_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BankCode) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BankCode) ProtoMessage() {}
+
+func (x *BankCode) ProtoReflect() protoreflect.Message {
+	mi := &file_sarana_v1_sarana_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BankCode.ProtoReflect.Descriptor instead.
+func (*BankCode) Descriptor() ([]byte, []int) {
+	return file_sarana_v1_sarana_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *BankCode) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
 type CheckoutRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PlanCode      string                 `protobuf:"bytes,1,opt,name=plan_code,json=planCode,proto3" json:"plan_code,omitempty"`
@@ -988,7 +1192,7 @@ type CheckoutRequest struct {
 
 func (x *CheckoutRequest) Reset() {
 	*x = CheckoutRequest{}
-	mi := &file_sarana_v1_sarana_proto_msgTypes[15]
+	mi := &file_sarana_v1_sarana_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1000,7 +1204,7 @@ func (x *CheckoutRequest) String() string {
 func (*CheckoutRequest) ProtoMessage() {}
 
 func (x *CheckoutRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_sarana_v1_sarana_proto_msgTypes[15]
+	mi := &file_sarana_v1_sarana_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1013,7 +1217,7 @@ func (x *CheckoutRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckoutRequest.ProtoReflect.Descriptor instead.
 func (*CheckoutRequest) Descriptor() ([]byte, []int) {
-	return file_sarana_v1_sarana_proto_rawDescGZIP(), []int{15}
+	return file_sarana_v1_sarana_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CheckoutRequest) GetPlanCode() string {
@@ -1121,11 +1325,34 @@ const file_sarana_v1_sarana_proto_rawDesc = "" +
 	"\x06jumlah\x18\x01 \x01(\x01R\x06jumlah\x12'\n" +
 	"\x0fbiaya_penarikan\x18\x02 \x01(\x01R\x0ebiayaPenarikan\x12\x0e\n" +
 	"\x02by\x18\x03 \x01(\tR\x02by\x12\x10\n" +
-	"\x03url\x18\x04 \x01(\tR\x03url\"B\n" +
+	"\x03url\x18\x04 \x01(\tR\x03url\"\x96\x03\n" +
+	"\rAccountUpdate\x12\x17\n" +
+	"\x04nama\x18\x01 \x01(\tH\x00R\x04nama\x88\x01\x01\x12\x19\n" +
+	"\x05email\x18\x02 \x01(\tH\x01R\x05email\x88\x01\x01\x12\x1b\n" +
+	"\x06alamat\x18\x03 \x01(\tH\x02R\x06alamat\x88\x01\x01\x12\x15\n" +
+	"\x03pic\x18\x04 \x01(\tH\x03R\x03pic\x88\x01\x01\x12#\n" +
+	"\vno_telp_pic\x18\x05 \x01(\tH\x04R\tnoTelpPic\x88\x01\x01\x12 \n" +
+	"\temail_pic\x18\x06 \x01(\tH\x05R\bemailPic\x88\x01\x01\x12\x19\n" +
+	"\x05norek\x18\a \x01(\tH\x06R\x05norek\x88\x01\x01\x12\x17\n" +
+	"\x04bank\x18\b \x01(\tH\aR\x04bank\x88\x01\x01\x123\n" +
+	"\x13account_holder_name\x18\t \x01(\tH\bR\x11accountHolderName\x88\x01\x01B\a\n" +
+	"\x05_namaB\b\n" +
+	"\x06_emailB\t\n" +
+	"\a_alamatB\x06\n" +
+	"\x04_picB\x0e\n" +
+	"\f_no_telp_picB\f\n" +
+	"\n" +
+	"_email_picB\b\n" +
+	"\x06_norekB\a\n" +
+	"\x05_bankB\x16\n" +
+	"\x14_account_holder_name\"B\n" +
 	"\x15AutoWithdrawalRequest\x12\x1d\n" +
 	"\aenabled\x18\x01 \x01(\bH\x00R\aenabled\x88\x01\x01B\n" +
 	"\n" +
-	"\b_enabled\"h\n" +
+	"\b_enabled\"K\n" +
+	"\x14WithdrawalFeeRequest\x12\x16\n" +
+	"\x06amount\x18\x01 \x01(\x01R\x06amount\x12\x1b\n" +
+	"\tbank_code\x18\x02 \x01(\tR\bbankCode\"h\n" +
 	"\n" +
 	"FeeRequest\x12\x16\n" +
 	"\x06amount\x18\x01 \x01(\x01R\x06amount\x12!\n" +
@@ -1137,7 +1364,9 @@ const file_sarana_v1_sarana_proto_rawDesc = "" +
 	"net_amount\x18\x01 \x01(\x01R\tnetAmount\x12!\n" +
 	"\fchannel_code\x18\x02 \x01(\tR\vchannelCode\x12\x1f\n" +
 	"\vinclude_vat\x18\x03 \x01(\bR\n" +
-	"includeVat\"\xd1\x01\n" +
+	"includeVat\"\x1e\n" +
+	"\bBankCode\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code\"\xd1\x01\n" +
 	"\x0fCheckoutRequest\x12\x1b\n" +
 	"\tplan_code\x18\x01 \x01(\tR\bplanCode\x12\x1f\n" +
 	"\vexternal_id\x18\x02 \x01(\tR\n" +
@@ -1167,18 +1396,25 @@ const file_sarana_v1_sarana_proto_rawDesc = "" +
 	"\x0fListWithdrawals\x12\x16.sarana.v1.ListRequest\x1a\x11.sarana.v1.Result\x123\n" +
 	"\rGetWithdrawal\x12\x0f.sarana.v1.ByID\x1a\x11.sarana.v1.Result\x12G\n" +
 	"\x19GetWithdrawalByExternalID\x12\x17.sarana.v1.ByExternalID\x1a\x11.sarana.v1.Result\x126\n" +
-	"\x10CancelWithdrawal\x12\x0f.sarana.v1.ByID\x1a\x11.sarana.v1.Result2\xe8\x01\n" +
+	"\x10CancelWithdrawal\x12\x0f.sarana.v1.ByID\x1a\x11.sarana.v1.Result2\xd7\x02\n" +
 	"\aAccount\x121\n" +
 	"\n" +
 	"GetAccount\x12\x10.sarana.v1.Empty\x1a\x11.sarana.v1.Result\x121\n" +
 	"\n" +
 	"GetBalance\x12\x10.sarana.v1.Empty\x1a\x11.sarana.v1.Result\x12H\n" +
 	"\x11SetAutoWithdrawal\x12 .sarana.v1.AutoWithdrawalRequest\x1a\x11.sarana.v1.Result\x12-\n" +
-	"\x06GetKYC\x12\x10.sarana.v1.Empty\x1a\x11.sarana.v1.Result2\xbb\x01\n" +
+	"\x06GetKYC\x12\x10.sarana.v1.Empty\x1a\x11.sarana.v1.Result\x12<\n" +
+	"\rUpdateAccount\x12\x18.sarana.v1.AccountUpdate\x1a\x11.sarana.v1.Result\x12/\n" +
+	"\bListApps\x12\x10.sarana.v1.Empty\x1a\x11.sarana.v1.Result2\xc4\x02\n" +
 	"\x04Fees\x12/\n" +
 	"\bFeeRates\x12\x10.sarana.v1.Empty\x1a\x11.sarana.v1.Result\x128\n" +
 	"\fCalculateFee\x12\x15.sarana.v1.FeeRequest\x1a\x11.sarana.v1.Result\x12H\n" +
-	"\x14CalculateAmountToPay\x12\x1d.sarana.v1.AmountToPayRequest\x1a\x11.sarana.v1.Result2\x88\x01\n" +
+	"\x14CalculateAmountToPay\x12\x1d.sarana.v1.AmountToPayRequest\x1a\x11.sarana.v1.Result\x129\n" +
+	"\x12SettlementSchedule\x12\x10.sarana.v1.Empty\x1a\x11.sarana.v1.Result\x12L\n" +
+	"\x16CalculateWithdrawalFee\x12\x1f.sarana.v1.WithdrawalFeeRequest\x1a\x11.sarana.v1.Result2\x87\x01\n" +
+	"\fBankChannels\x12=\n" +
+	"\x16ListActiveBankChannels\x12\x10.sarana.v1.Empty\x1a\x11.sarana.v1.Result\x128\n" +
+	"\x0eGetBankChannel\x12\x13.sarana.v1.BankCode\x1a\x11.sarana.v1.Result2\x88\x01\n" +
 	"\rSubscriptions\x129\n" +
 	"\bCheckout\x12\x1a.sarana.v1.CheckoutRequest\x1a\x11.sarana.v1.Result\x12<\n" +
 	"\x0eCheckoutStatus\x12\x17.sarana.v1.ByExternalID\x1a\x11.sarana.v1.ResultB[ZYgithub.com/SaranaTechnology/internal-mono-reppo/apps/api-go/pkg/grpcapi/saranav1;saranav1b\x06proto3"
@@ -1195,7 +1431,7 @@ func file_sarana_v1_sarana_proto_rawDescGZIP() []byte {
 	return file_sarana_v1_sarana_proto_rawDescData
 }
 
-var file_sarana_v1_sarana_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_sarana_v1_sarana_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_sarana_v1_sarana_proto_goTypes = []any{
 	(*Result)(nil),                // 0: sarana.v1.Result
 	(*Meta)(nil),                  // 1: sarana.v1.Meta
@@ -1209,17 +1445,20 @@ var file_sarana_v1_sarana_proto_goTypes = []any{
 	(*QRISRequest)(nil),           // 9: sarana.v1.QRISRequest
 	(*PaymentStatusRequest)(nil),  // 10: sarana.v1.PaymentStatusRequest
 	(*WithdrawalRequest)(nil),     // 11: sarana.v1.WithdrawalRequest
-	(*AutoWithdrawalRequest)(nil), // 12: sarana.v1.AutoWithdrawalRequest
-	(*FeeRequest)(nil),            // 13: sarana.v1.FeeRequest
-	(*AmountToPayRequest)(nil),    // 14: sarana.v1.AmountToPayRequest
-	(*CheckoutRequest)(nil),       // 15: sarana.v1.CheckoutRequest
-	(*structpb.Value)(nil),        // 16: google.protobuf.Value
-	(*structpb.Struct)(nil),       // 17: google.protobuf.Struct
+	(*AccountUpdate)(nil),         // 12: sarana.v1.AccountUpdate
+	(*AutoWithdrawalRequest)(nil), // 13: sarana.v1.AutoWithdrawalRequest
+	(*WithdrawalFeeRequest)(nil),  // 14: sarana.v1.WithdrawalFeeRequest
+	(*FeeRequest)(nil),            // 15: sarana.v1.FeeRequest
+	(*AmountToPayRequest)(nil),    // 16: sarana.v1.AmountToPayRequest
+	(*BankCode)(nil),              // 17: sarana.v1.BankCode
+	(*CheckoutRequest)(nil),       // 18: sarana.v1.CheckoutRequest
+	(*structpb.Value)(nil),        // 19: google.protobuf.Value
+	(*structpb.Struct)(nil),       // 20: google.protobuf.Struct
 }
 var file_sarana_v1_sarana_proto_depIdxs = []int32{
-	16, // 0: sarana.v1.Result.data:type_name -> google.protobuf.Value
+	19, // 0: sarana.v1.Result.data:type_name -> google.protobuf.Value
 	1,  // 1: sarana.v1.Result.meta:type_name -> sarana.v1.Meta
-	17, // 2: sarana.v1.InvoiceRequest.metadata:type_name -> google.protobuf.Struct
+	20, // 2: sarana.v1.InvoiceRequest.metadata:type_name -> google.protobuf.Struct
 	6,  // 3: sarana.v1.Payments.CreateInvoice:input_type -> sarana.v1.InvoiceRequest
 	7,  // 4: sarana.v1.Payments.CreateVA:input_type -> sarana.v1.VARequest
 	8,  // 5: sarana.v1.Payments.CreateEWallet:input_type -> sarana.v1.EWalletRequest
@@ -1236,38 +1475,50 @@ var file_sarana_v1_sarana_proto_depIdxs = []int32{
 	3,  // 16: sarana.v1.Withdrawals.CancelWithdrawal:input_type -> sarana.v1.ByID
 	2,  // 17: sarana.v1.Account.GetAccount:input_type -> sarana.v1.Empty
 	2,  // 18: sarana.v1.Account.GetBalance:input_type -> sarana.v1.Empty
-	12, // 19: sarana.v1.Account.SetAutoWithdrawal:input_type -> sarana.v1.AutoWithdrawalRequest
+	13, // 19: sarana.v1.Account.SetAutoWithdrawal:input_type -> sarana.v1.AutoWithdrawalRequest
 	2,  // 20: sarana.v1.Account.GetKYC:input_type -> sarana.v1.Empty
-	2,  // 21: sarana.v1.Fees.FeeRates:input_type -> sarana.v1.Empty
-	13, // 22: sarana.v1.Fees.CalculateFee:input_type -> sarana.v1.FeeRequest
-	14, // 23: sarana.v1.Fees.CalculateAmountToPay:input_type -> sarana.v1.AmountToPayRequest
-	15, // 24: sarana.v1.Subscriptions.Checkout:input_type -> sarana.v1.CheckoutRequest
-	4,  // 25: sarana.v1.Subscriptions.CheckoutStatus:input_type -> sarana.v1.ByExternalID
-	0,  // 26: sarana.v1.Payments.CreateInvoice:output_type -> sarana.v1.Result
-	0,  // 27: sarana.v1.Payments.CreateVA:output_type -> sarana.v1.Result
-	0,  // 28: sarana.v1.Payments.CreateEWallet:output_type -> sarana.v1.Result
-	0,  // 29: sarana.v1.Payments.CreateQRIS:output_type -> sarana.v1.Result
-	0,  // 30: sarana.v1.Payments.GetPaymentStatus:output_type -> sarana.v1.Result
-	0,  // 31: sarana.v1.Payments.ListPaymentMethods:output_type -> sarana.v1.Result
-	0,  // 32: sarana.v1.Transactions.ListTransactions:output_type -> sarana.v1.Result
-	0,  // 33: sarana.v1.Transactions.GetTransaction:output_type -> sarana.v1.Result
-	0,  // 34: sarana.v1.Transactions.GetTransactionByExternalID:output_type -> sarana.v1.Result
-	0,  // 35: sarana.v1.Withdrawals.CreateWithdrawal:output_type -> sarana.v1.Result
-	0,  // 36: sarana.v1.Withdrawals.ListWithdrawals:output_type -> sarana.v1.Result
-	0,  // 37: sarana.v1.Withdrawals.GetWithdrawal:output_type -> sarana.v1.Result
-	0,  // 38: sarana.v1.Withdrawals.GetWithdrawalByExternalID:output_type -> sarana.v1.Result
-	0,  // 39: sarana.v1.Withdrawals.CancelWithdrawal:output_type -> sarana.v1.Result
-	0,  // 40: sarana.v1.Account.GetAccount:output_type -> sarana.v1.Result
-	0,  // 41: sarana.v1.Account.GetBalance:output_type -> sarana.v1.Result
-	0,  // 42: sarana.v1.Account.SetAutoWithdrawal:output_type -> sarana.v1.Result
-	0,  // 43: sarana.v1.Account.GetKYC:output_type -> sarana.v1.Result
-	0,  // 44: sarana.v1.Fees.FeeRates:output_type -> sarana.v1.Result
-	0,  // 45: sarana.v1.Fees.CalculateFee:output_type -> sarana.v1.Result
-	0,  // 46: sarana.v1.Fees.CalculateAmountToPay:output_type -> sarana.v1.Result
-	0,  // 47: sarana.v1.Subscriptions.Checkout:output_type -> sarana.v1.Result
-	0,  // 48: sarana.v1.Subscriptions.CheckoutStatus:output_type -> sarana.v1.Result
-	26, // [26:49] is the sub-list for method output_type
-	3,  // [3:26] is the sub-list for method input_type
+	12, // 21: sarana.v1.Account.UpdateAccount:input_type -> sarana.v1.AccountUpdate
+	2,  // 22: sarana.v1.Account.ListApps:input_type -> sarana.v1.Empty
+	2,  // 23: sarana.v1.Fees.FeeRates:input_type -> sarana.v1.Empty
+	15, // 24: sarana.v1.Fees.CalculateFee:input_type -> sarana.v1.FeeRequest
+	16, // 25: sarana.v1.Fees.CalculateAmountToPay:input_type -> sarana.v1.AmountToPayRequest
+	2,  // 26: sarana.v1.Fees.SettlementSchedule:input_type -> sarana.v1.Empty
+	14, // 27: sarana.v1.Fees.CalculateWithdrawalFee:input_type -> sarana.v1.WithdrawalFeeRequest
+	2,  // 28: sarana.v1.BankChannels.ListActiveBankChannels:input_type -> sarana.v1.Empty
+	17, // 29: sarana.v1.BankChannels.GetBankChannel:input_type -> sarana.v1.BankCode
+	18, // 30: sarana.v1.Subscriptions.Checkout:input_type -> sarana.v1.CheckoutRequest
+	4,  // 31: sarana.v1.Subscriptions.CheckoutStatus:input_type -> sarana.v1.ByExternalID
+	0,  // 32: sarana.v1.Payments.CreateInvoice:output_type -> sarana.v1.Result
+	0,  // 33: sarana.v1.Payments.CreateVA:output_type -> sarana.v1.Result
+	0,  // 34: sarana.v1.Payments.CreateEWallet:output_type -> sarana.v1.Result
+	0,  // 35: sarana.v1.Payments.CreateQRIS:output_type -> sarana.v1.Result
+	0,  // 36: sarana.v1.Payments.GetPaymentStatus:output_type -> sarana.v1.Result
+	0,  // 37: sarana.v1.Payments.ListPaymentMethods:output_type -> sarana.v1.Result
+	0,  // 38: sarana.v1.Transactions.ListTransactions:output_type -> sarana.v1.Result
+	0,  // 39: sarana.v1.Transactions.GetTransaction:output_type -> sarana.v1.Result
+	0,  // 40: sarana.v1.Transactions.GetTransactionByExternalID:output_type -> sarana.v1.Result
+	0,  // 41: sarana.v1.Withdrawals.CreateWithdrawal:output_type -> sarana.v1.Result
+	0,  // 42: sarana.v1.Withdrawals.ListWithdrawals:output_type -> sarana.v1.Result
+	0,  // 43: sarana.v1.Withdrawals.GetWithdrawal:output_type -> sarana.v1.Result
+	0,  // 44: sarana.v1.Withdrawals.GetWithdrawalByExternalID:output_type -> sarana.v1.Result
+	0,  // 45: sarana.v1.Withdrawals.CancelWithdrawal:output_type -> sarana.v1.Result
+	0,  // 46: sarana.v1.Account.GetAccount:output_type -> sarana.v1.Result
+	0,  // 47: sarana.v1.Account.GetBalance:output_type -> sarana.v1.Result
+	0,  // 48: sarana.v1.Account.SetAutoWithdrawal:output_type -> sarana.v1.Result
+	0,  // 49: sarana.v1.Account.GetKYC:output_type -> sarana.v1.Result
+	0,  // 50: sarana.v1.Account.UpdateAccount:output_type -> sarana.v1.Result
+	0,  // 51: sarana.v1.Account.ListApps:output_type -> sarana.v1.Result
+	0,  // 52: sarana.v1.Fees.FeeRates:output_type -> sarana.v1.Result
+	0,  // 53: sarana.v1.Fees.CalculateFee:output_type -> sarana.v1.Result
+	0,  // 54: sarana.v1.Fees.CalculateAmountToPay:output_type -> sarana.v1.Result
+	0,  // 55: sarana.v1.Fees.SettlementSchedule:output_type -> sarana.v1.Result
+	0,  // 56: sarana.v1.Fees.CalculateWithdrawalFee:output_type -> sarana.v1.Result
+	0,  // 57: sarana.v1.BankChannels.ListActiveBankChannels:output_type -> sarana.v1.Result
+	0,  // 58: sarana.v1.BankChannels.GetBankChannel:output_type -> sarana.v1.Result
+	0,  // 59: sarana.v1.Subscriptions.Checkout:output_type -> sarana.v1.Result
+	0,  // 60: sarana.v1.Subscriptions.CheckoutStatus:output_type -> sarana.v1.Result
+	32, // [32:61] is the sub-list for method output_type
+	3,  // [3:32] is the sub-list for method input_type
 	3,  // [3:3] is the sub-list for extension type_name
 	3,  // [3:3] is the sub-list for extension extendee
 	0,  // [0:3] is the sub-list for field type_name
@@ -1279,15 +1530,16 @@ func file_sarana_v1_sarana_proto_init() {
 		return
 	}
 	file_sarana_v1_sarana_proto_msgTypes[12].OneofWrappers = []any{}
+	file_sarana_v1_sarana_proto_msgTypes[13].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sarana_v1_sarana_proto_rawDesc), len(file_sarana_v1_sarana_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   19,
 			NumExtensions: 0,
-			NumServices:   6,
+			NumServices:   7,
 		},
 		GoTypes:           file_sarana_v1_sarana_proto_goTypes,
 		DependencyIndexes: file_sarana_v1_sarana_proto_depIdxs,
